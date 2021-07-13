@@ -4,11 +4,12 @@ import route53 = require('@aws-cdk/aws-route53');
 import route53Targets = require('@aws-cdk/aws-route53-targets');
 import cloudfront = require('@aws-cdk/aws-cloudfront');
 import s3 = require('@aws-cdk/aws-s3');
-import { GuardDutyNotifier } from './guardduty';
+// import { GuardDutyNotifier } from './guardduty';
 import s3deploy = require('@aws-cdk/aws-s3-deployment');
 import path = require('path');
 import { hashDirectorySync } from './hash';
-import { PipelineStack } from './pipeline';
+// import { PipelineStack } from './pipeline';
+// import { Stack } from '@aws-cdk/core';
 
 export interface CdkWorkshopProps extends cdk.StackProps {
 
@@ -23,20 +24,9 @@ export interface CdkWorkshopProps extends cdk.StackProps {
     certificate: string
 
     /**
-     * Email address to use for AWS GuardDuty security finding notifications
+     * The ID of the Route53 hosted zone (should be deployed separately)
      */
-    email: string
-
-    /**
-     * If true, AWS WAF will be deployed in front of the workshop CloudFront
-     * distribution, with a ruleset to only allow access from the Amazon corporate network
-     */
-    restrictToAmazonNetwork: boolean
-
-    /**
-     * The ARN of the AWS WAF WebACL that restricts access to the Amazon corporate network (should be deployed separately)
-     */
-    restrictToAmazonNetworkWebACL: string
+    hostedZoneId: string
 
     /**
      * If enabled, sets the max TTL to 0 in the CloudFront distribution.
@@ -50,28 +40,22 @@ export class CdkWorkshop extends cdk.Stack {
     constructor(scope: cdk.Construct, id: string, props: CdkWorkshopProps) {
         super(scope, id, props);
 
-        this.renameLogicalId('CloudFrontDNSRecord46217411', 'CloudFrontDNSRecord');
-
-        // Enable AWS GuardDuty in this account, and send any security findings via email
-        new GuardDutyNotifier(this, "GuardDuty", {
-            environmentName: props.domain,
-            email: props.email
-        })
-
         // Create DNS Zone
-        const zone = new route53.PublicHostedZone(this, 'HostedZone', {
-            zoneName: props.domain,
-        })
+        // const zone = new route53.PublicHostedZone(this, 'HostedZone', {
+        //     zoneName: props.domain,
+        // })
+        
+        // Import an existing R53 zone
+        const zone = route53.PublicHostedZone.fromHostedZoneId(this, 'HostedZone', props.hostedZoneId);
 
         // Bucket to hold the static website
         const bucket = new s3.Bucket(this, 'Bucket', {
-            websiteIndexDocument: 'index.html'
+            websiteIndexDocument: 'index.html' 
         });
 
         const origin = new cloudfront.OriginAccessIdentity(this, "BucketOrigin", {
             comment: props.domain,
         });
-        (origin.node.defaultChild as cloudfront.CfnCloudFrontOriginAccessIdentity).overrideLogicalId('BucketOrigin');
 
         // Due to a bug in `BucketDeployment` (awslabs/aws-cdk#981) we must
         // deploy each version of the content to a different prefix (it's also a
@@ -89,10 +73,10 @@ export class CdkWorkshop extends cdk.Stack {
             retainOnDelete: true
         });
 
-        let acl: string | undefined
-        if (props.restrictToAmazonNetwork) {
-            acl = props.restrictToAmazonNetworkWebACL.toString()
-        }
+        // let acl: string | undefined
+        // if (props.restrictToAmazonNetwork) {
+        //     acl = props.restrictToAmazonNetworkWebACL.toString()
+        // }
 
         const maxTtl = props.disableCache ? cdk.Duration.seconds(0) : undefined;
 
@@ -100,7 +84,6 @@ export class CdkWorkshop extends cdk.Stack {
         const cdn = new cloudfront.CloudFrontWebDistribution(this, 'CloudFront', {
             viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
-            webACLId: acl,
             originConfigs: [{
                 behaviors: [{
                     isDefaultBehavior: true,
@@ -154,24 +137,15 @@ export class CdkWorkshop extends cdk.Stack {
     }
 }
 
-const ENV = { account: '140041570539', region: 'us-east-1' };
-
-export class TheCdkWorkshopStage extends cdk.Stage {
-    constructor(scope: cdk.Construct, id: string) {
-        super(scope, id, { env: ENV });
-
-        new CdkWorkshop(this, 'CloudFrontStack', {
-            stackName: 'CDK-WORKSHOP-IGIZOTOV',
-            domain: 'cdk.f90.dev',
-            certificate: 'arn:aws:acm:us-east-1:140041570539:certificate/1d80e098-95b4-4047-bd60-0f693e581de5',
-            email: 'igizotov@amazon.com',
-            restrictToAmazonNetwork: false,
-            restrictToAmazonNetworkWebACL: cdk.Fn.importValue('AMAZON-CORP-NETWORK-ACL:AmazonNetworkACL'),
-            disableCache: true
-        });
-    }
-}
+const ENV = { account: '140041570539', region: 'ap-southeast-2' };
 
 const app = new cdk.App();
-new PipelineStack(app, 'WorkshopPipelineStack', { env: ENV });
+new CdkWorkshop(app, 'CDKWorkshopStack', {
+    env: ENV,
+    stackName: 'CDK-WORKSHOP-IGIZOTOV',
+    domain: 'cdk.f90.dev',
+    certificate: 'arn:aws:acm:us-east-1:140041570539:certificate/1d80e098-95b4-4047-bd60-0f693e581de5',
+    disableCache: false,
+    hostedZoneId: 'Z01364273323CXFICW9HK'
+});
 app.synth();
