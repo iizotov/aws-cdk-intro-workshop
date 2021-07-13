@@ -18,7 +18,7 @@ export class PipelineStack extends Stack {
       sourceAction: new cpipe_actions.GitHubSourceAction({
         actionName: 'GitHub',
         output: sourceArtifact,
-        owner: 'aws-samples',
+        owner: 'iizotov',
         repo: 'aws-cdk-intro-workshop',
         oauthToken: SecretValue.secretsManager('github-token'),
       }),

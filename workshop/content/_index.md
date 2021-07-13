@@ -14,13 +14,7 @@ The AWS CDK is a new software development framework from AWS with the sole
 purpose of making it fun and easy to define cloud infrastructure in your
 favorite programming language and deploy it using AWS CloudFormation.
 
-So what are we going to build? Nothing too fancy...
-
-We'll spend some time setting up your development environment and learning a
-little about how to work with the CDK Toolkit to deploy your app to an AWS
-environment.
-
-Then, you'll write a little "Hello, world" Lambda function and front it with an
+You'll write a little "Hello, world" Lambda function and front it with an
 API Gateway endpoint so users can call it via an HTTP request.
 
 Next, we'll introduce the powerful concept of __CDK constructs__.

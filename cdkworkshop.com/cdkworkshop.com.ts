@@ -136,7 +136,7 @@ export class CdkWorkshop extends cdk.Stack {
 
         new cdk.CfnOutput(this, 'CloudFrontURL', {
             description: 'The CloudFront distribution URL',
-            value: 'https://' + cdn.domainName,
+            value: 'https://' + cdn.distributionDomainName,
         })
 
         new cdk.CfnOutput(this, 'CertificateArn', {
@@ -154,17 +154,17 @@ export class CdkWorkshop extends cdk.Stack {
     }
 }
 
-const ENV = { account: '025656461920', region: 'eu-west-1' };
+const ENV = { account: '140041570539', region: 'us-east-1' };
 
 export class TheCdkWorkshopStage extends cdk.Stage {
     constructor(scope: cdk.Construct, id: string) {
         super(scope, id, { env: ENV });
 
         new CdkWorkshop(this, 'CloudFrontStack', {
-            stackName: 'CDK-WORKSHOP-PROD',
-            domain: 'cdkworkshop.com',
-            certificate: 'arn:aws:acm:us-east-1:025656461920:certificate/c75d7a9d-1253-4506-bc6d-5874767b3c35',
-            email: 'aws-cdk-workshop@amazon.com',
+            stackName: 'CDK-WORKSHOP-IGIZOTOV',
+            domain: 'cdk.f90.dev',
+            certificate: 'arn:aws:acm:us-east-1:140041570539:certificate/1d80e098-95b4-4047-bd60-0f693e581de5',
+            email: 'igizotov@amazon.com',
             restrictToAmazonNetwork: false,
             restrictToAmazonNetworkWebACL: cdk.Fn.importValue('AMAZON-CORP-NETWORK-ACL:AmazonNetworkACL'),
             disableCache: true
