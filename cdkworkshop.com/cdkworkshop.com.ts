@@ -142,7 +142,7 @@ new CdkWorkshop(app, 'CDKWorkshopStack', {
     stackName: 'CDK-WORKSHOP-IGIZOTOV',
     domain: 'cdk.f90.dev',
     certificate: 'arn:aws:acm:us-east-1:140041570539:certificate/1d80e098-95b4-4047-bd60-0f693e581de5',
-    disableCache: false,
+    disableCache: true,
     hostedZoneId: 'Z01364273323CXFICW9HK'
 });
 app.synth();

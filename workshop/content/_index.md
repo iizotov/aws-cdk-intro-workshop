@@ -4,13 +4,13 @@ chapter: true
 weight: 1
 ---
 
-# Welcome Developers!
+# Hi and welcome!
 
 Hey there, and thanks for joining us! Hope you can't wait to play
 with this new thing we call the "AWS Cloud Development Kit" or in short, the AWS
 CDK.
 
-The AWS CDK is a new software development framework from AWS with the sole
+The AWS CDK is a software development framework from AWS with the sole
 purpose of making it fun and easy to define cloud infrastructure in your
 favorite programming language and deploy it using AWS CloudFormation.
 
