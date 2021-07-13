@@ -70,11 +70,6 @@ export class CdkWorkshop extends cdk.Stack {
             retainOnDelete: true
         });
 
-        // let acl: string | undefined
-        // if (props.restrictToAmazonNetwork) {
-        //     acl = props.restrictToAmazonNetworkWebACL.toString()
-        // }
-
         const maxTtl = props.disableCache ? cdk.Duration.seconds(0) : undefined;
 
         // CloudFront distribution
@@ -97,8 +92,6 @@ export class CdkWorkshop extends cdk.Stack {
                 acmCertRef: props.certificate,
             },
         })
-
-        // TODO: Model dependency from CloudFront Web Distribution on S3 Bucket Deployment
 
         // DNS alias for the CloudFront distribution
         new route53.ARecord(this, 'CloudFrontDNSRecord', {
